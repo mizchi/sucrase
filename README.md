@@ -4,10 +4,21 @@ This project is fork of sucrase compiler
 
 ## Goals
 
+- TypeScript first (default)
 - Fast
-- Lightweight build size
-- Browser friendly
+- Lightweight build size (110kb)
 - For Modern Browsers
+## Examples
+
+```ts
+import {transform} from "@mizchi/sucrase";
+// typescript is default
+const code = transform("export const x: number = 1;", {
+  transforms: ["jsx"],
+  keepUnusedImports: true,
+});
+console.log(code.code);
+```
 
 ## Diferrences from sucrase
 
