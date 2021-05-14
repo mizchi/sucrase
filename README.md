@@ -1,5 +1,24 @@
 # Sucrase
 
+This project is fork of sucrase compiler
+
+## Goals
+
+- Fast
+- Lightweight build size
+- Browser friendly
+- For Modern Browsers
+
+## Diferrences from sucrase
+
+- Drop integrations
+- Drop flow
+- Drop commonjs transform
+- Use node `--experimental-loader` instead of hook
+
+----
+# Sucrase
+
 [![Build Status](https://github.com/alangpierce/sucrase/workflows/All%20tests/badge.svg)](https://github.com/alangpierce/sucrase/actions)
 [![npm version](https://img.shields.io/npm/v/sucrase.svg)](https://www.npmjs.com/package/sucrase)
 [![Install Size](https://packagephobia.now.sh/badge?p=sucrase)](https://packagephobia.now.sh/result?p=sucrase)

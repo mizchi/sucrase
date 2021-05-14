@@ -4,7 +4,8 @@
     // options.
     "strict": true,
     "target": "es2020",
-    "module": "commonjs",
+    "module": "esnext",
+    "declaration": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "importsNotUsedAsValues": "error",

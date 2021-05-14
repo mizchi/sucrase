@@ -1,18 +1,20 @@
-import computeSourceMap, {RawSourceMap} from "./computeSourceMap";
+// import computeSourceMap, {RawSourceMap} from "./computeSourceMap";
 import {HelperManager} from "./HelperManager";
 import identifyShadowedGlobals from "./identifyShadowedGlobals";
 import NameManager from "./NameManager";
-import {validateOptions} from "./Options";
 import {parse} from "./parser";
 import type {Scope} from "./parser/tokenizer/state";
 import TokenProcessor from "./TokenProcessor";
 import RootTransformer from "./transformers/RootTransformer";
 import formatTokens from "./util/formatTokens";
 import getTSImportedNames from "./util/getTSImportedNames";
+import type {Options, Transform} from "./Options";
+
+export type {Options, Transform};
 
 export interface TransformResult {
   code: string;
-  sourceMap?: RawSourceMap;
+  sourceMap?: undefined;
 }
 
 export interface SucraseContext {
@@ -24,17 +26,12 @@ export interface SucraseContext {
 }
 
 // Re-export options types in an isolatedModules-friendly way so they can be used externally.
-export type Options = import("./Options").Options;
-export type SourceMapOptions = import("./Options").SourceMapOptions;
-export type Transform = import("./Options").Transform;
-
 export function getVersion(): string {
   // eslint-disable-next-line
   return require("../package.json").version;
 }
 
 export function transform(code: string, options: Options): TransformResult {
-  validateOptions(options);
   try {
     const sucraseContext = getSucraseContext(code, options);
     const transformer = new RootTransformer(sucraseContext, options.transforms, options);
@@ -45,7 +42,8 @@ export function transform(code: string, options: Options): TransformResult {
       }
       result = {
         ...result,
-        sourceMap: computeSourceMap(result.code, options.filePath, options.sourceMapOptions),
+        sourceMap: undefined,
+        // sourceMap: computeSourceMap(result.code, options.filePath, options.sourceMapOptions),
       };
     }
     return result;

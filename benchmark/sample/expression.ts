@@ -783,9 +783,6 @@ function parseObjPropValue(
 }
 
 export function parsePropertyName(objectContextId: number): void {
-  if (isFlowEnabled) {
-    flowParseVariance();
-  }
   if (eat(tt.bracketL)) {
     state.tokens[state.tokens.length - 1].contextId = objectContextId;
     parseMaybeAssign();

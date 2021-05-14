@@ -1,11 +1,4 @@
-import {createCheckers} from "ts-interface-checker";
-
-import OptionsGenTypes from "./Options-gen-types";
-
-const {Options: OptionsChecker} = createCheckers(OptionsGenTypes);
-
 export type Transform = "jsx";
-
 export interface SourceMapOptions {
   /**
    * The name to use in the "file" field of the source map. This should be the name of the compiled
@@ -52,8 +45,4 @@ export interface Options {
    * This feature is needed by svelte compiler to tell template block from script block.
    */
   keepUnusedImports?: boolean;
-}
-
-export function validateOptions(options: Options): void {
-  OptionsChecker.strictCheck(options);
 }

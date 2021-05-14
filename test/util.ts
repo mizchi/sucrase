@@ -1,5 +1,5 @@
-import * as assert from "assert";
 import vm from "vm";
+import {expect} from "./folio.config";
 
 import {Options, transform} from "../src";
 
@@ -15,7 +15,7 @@ export function assertExpectations(
 ): void {
   const resultCode = transform(code, options).code;
   if ("expectedResult" in expectations) {
-    assert.strictEqual(resultCode, expectations.expectedResult);
+    expect(resultCode).toBe(expectations.expectedResult);
   }
   if ("expectedOutput" in expectations) {
     const outputs: Array<unknown> = [];
@@ -24,9 +24,8 @@ export function assertExpectations(
       // this limits us to using JSON-like values (particularly, never using undefined).
       setOutput: (value: unknown) => outputs.push(JSON.parse(JSON.stringify(value))),
     });
-    assert.strictEqual(outputs.length, 1, "setOutput should be called exactly once");
-    assert.deepStrictEqual([1, 2], [1, 2]);
-    assert.deepStrictEqual(outputs[0], expectations.expectedOutput);
+    expect(outputs.length).toBe(1);
+    expect(outputs[0]).toStrictEqual(expectations.expectedOutput);
   }
 }
 
@@ -62,7 +61,7 @@ export function assertMultiFileOutput(
   const mainResult = new FakeModuleResolver(codeByFilename).evaluateModule("main");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const output = (mainResult as any).output;
-  assert.deepStrictEqual(output, expectedOutput);
+  expect(output).toStrictEqual(expectedOutput);
 }
 
 class FakeModuleResolver {
