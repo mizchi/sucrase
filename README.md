@@ -1,4 +1,4 @@
-# Sucrase
+# @mizchi/sucrase
 
 This project is fork of sucrase compiler
 
