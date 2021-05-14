@@ -1,8 +1,7 @@
 import {eat, lookaheadType, match} from "../tokenizer/index";
 import {TokenType as tt} from "../tokenizer/types";
-import {isFlowEnabled, isTypeScriptEnabled, state} from "../traverser/base";
+import {state} from "../traverser/base";
 import {baseParseConditional} from "../traverser/expression";
-import {flowParseTypeAnnotation} from "./flow";
 import {tsParseTypeAnnotation} from "./typescript";
 
 /**
@@ -30,10 +29,6 @@ export function typedParseParenItem(): void {
     state.tokens[state.tokens.length - 1].isType = true;
   }
   if (match(tt.colon)) {
-    if (isTypeScriptEnabled) {
-      tsParseTypeAnnotation();
-    } else if (isFlowEnabled) {
-      flowParseTypeAnnotation();
-    }
+    tsParseTypeAnnotation();
   }
 }

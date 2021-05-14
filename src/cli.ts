@@ -107,9 +107,7 @@ async function findFiles(options: CLIOptions): Promise<Array<FileInfo>> {
   const outDirPath = options.outDirPath;
   const srcDirPath = options.srcDirPath;
 
-  const extensions = options.sucraseOptions.transforms.includes("typescript")
-    ? [".ts", ".tsx"]
-    : [".js", ".jsx"];
+  const extensions = [".ts", ".tsx", ".js", ".jsx"];
 
   if (!(await exists(outDirPath))) {
     await mkdir(outDirPath);
@@ -251,9 +249,6 @@ async function updateOptionsFromProject(options: CLIOptions): Promise<void> {
   }
   const json = JSON.parse(str);
   const sucraseOpts = options.sucraseOptions;
-  if (!sucraseOpts.transforms.includes("typescript")) {
-    sucraseOpts.transforms.push("typescript");
-  }
 
   const compilerOpts = json.compilerOptions;
   if (compilerOpts.outDir) {
@@ -261,11 +256,6 @@ async function updateOptionsFromProject(options: CLIOptions): Promise<void> {
   }
   if (compilerOpts.esModuleInterop !== true) {
     sucraseOpts.enableLegacyTypeScriptModuleInterop = true;
-  }
-  if (compilerOpts.module === "commonjs") {
-    if (!sucraseOpts.transforms.includes("imports")) {
-      sucraseOpts.transforms.push("imports");
-    }
   }
 }
 

@@ -2,12 +2,10 @@ import computeSourceMap, {RawSourceMap} from "./computeSourceMap";
 import {HelperManager} from "./HelperManager";
 import identifyShadowedGlobals from "./identifyShadowedGlobals";
 import NameManager from "./NameManager";
-import {validateOptions} from "./Options";
 import {parse} from "./parser";
 import type {Scope} from "./parser/tokenizer/state";
 import TokenProcessor from "./TokenProcessor";
 import RootTransformer from "./transformers/RootTransformer";
-import formatTokens from "./util/formatTokens";
 import getTSImportedNames from "./util/getTSImportedNames";
 
 export interface TransformResult {
@@ -28,13 +26,8 @@ export type Options = import("./Options").Options;
 export type SourceMapOptions = import("./Options").SourceMapOptions;
 export type Transform = import("./Options").Transform;
 
-export function getVersion(): string {
-  // eslint-disable-next-line
-  return require("../package.json").version;
-}
-
 export function transform(code: string, options: Options): TransformResult {
-  validateOptions(options);
+  // validateOptions(options);
   try {
     const sucraseContext = getSucraseContext(code, options);
     const transformer = new RootTransformer(sucraseContext, options.transforms, options);
@@ -58,15 +51,6 @@ export function transform(code: string, options: Options): TransformResult {
 }
 
 /**
- * Return a string representation of the sucrase tokens, mostly useful for
- * diagnostic purposes.
- */
-export function getFormattedTokens(code: string, options: Options): string {
-  const tokens = getSucraseContext(code, options).tokenProcessor.tokens;
-  return formatTokens(code, tokens);
-}
-
-/**
  * Call into the parser/tokenizer and do some further preprocessing:
  * - Come up with a set of used names so that we can assign new names.
  * - Preprocess all import/export statements so we know which globals we are interested in.
@@ -76,8 +60,7 @@ export function getFormattedTokens(code: string, options: Options): string {
  * being done.
  */
 function getSucraseContext(code: string, options: Options): SucraseContext {
-  const isJSXEnabled = options.transforms.includes("jsx");
-  const file = parse(code, isJSXEnabled);
+  const file = parse(code, true);
   const tokens = file.tokens;
   const scopes = file.scopes;
 
@@ -85,7 +68,6 @@ function getSucraseContext(code: string, options: Options): SucraseContext {
   const helperManager = new HelperManager(nameManager);
   const tokenProcessor = new TokenProcessor(code, tokens, false, helperManager);
 
-  const importProcessor = null;
   identifyShadowedGlobals(tokenProcessor, scopes, getTSImportedNames(tokenProcessor));
-  return {tokenProcessor, scopes, nameManager, importProcessor, helperManager};
+  return {tokenProcessor, scopes, nameManager, importProcessor: null, helperManager};
 }

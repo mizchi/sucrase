@@ -1,4 +1,3 @@
-import type CJSImportProcessor from "../CJSImportProcessor";
 import type {Options} from "../index";
 import {IdentifierRole} from "../parser/tokenizer";
 import {TokenType as tt} from "../parser/tokenizer/types";
@@ -14,7 +13,7 @@ export default class ReactDisplayNameTransformer extends Transformer {
   constructor(
     readonly rootTransformer: RootTransformer,
     readonly tokens: TokenProcessor,
-    readonly importProcessor: CJSImportProcessor | null,
+    readonly importProcessor: null,
     readonly options: Options,
   ) {
     super();
@@ -22,25 +21,12 @@ export default class ReactDisplayNameTransformer extends Transformer {
 
   process(): boolean {
     const startIndex = this.tokens.currentIndex();
-    if (this.tokens.identifierName() === "createReactClass") {
-      const newName =
-        this.importProcessor && this.importProcessor.getIdentifierReplacement("createReactClass");
-      if (newName) {
-        this.tokens.replaceToken(`(0, ${newName})`);
-      } else {
-        this.tokens.copyToken();
-      }
-      this.tryProcessCreateClassCall(startIndex);
-      return true;
-    }
     if (
       this.tokens.matches3(tt.name, tt.dot, tt.name) &&
       this.tokens.identifierName() === "React" &&
       this.tokens.identifierNameAtIndex(this.tokens.currentIndex() + 2) === "createClass"
     ) {
-      const newName = this.importProcessor
-        ? this.importProcessor.getIdentifierReplacement("React") || "React"
-        : "React";
+      const newName = "React";
       if (newName) {
         this.tokens.replaceToken(newName);
         this.tokens.copyToken();

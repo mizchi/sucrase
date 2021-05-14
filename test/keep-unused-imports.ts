@@ -1,7 +1,7 @@
 import {assertResult} from "./util";
 
 function assertKeepUnusedImportsOption(code: string, expectedResult: string): void {
-  assertResult(code, expectedResult, {transforms: ["typescript"], keepUnusedImports: true});
+  assertResult(code, expectedResult, {transforms: [], keepUnusedImports: true});
 }
 
 describe("With keepUnusedImports", () => {

@@ -1,14 +1,11 @@
-import {ESMODULE_PREFIX} from "./prefixes";
 import {assertExpectations, assertResult, Expectations} from "./util";
 
 function assertTypeScriptAndFlowExpectations(code: string, expectations: Expectations): void {
-  assertExpectations(code, expectations, {transforms: ["jsx", "imports", "typescript"]});
-  assertExpectations(code, expectations, {transforms: ["jsx", "imports", "flow"]});
+  assertExpectations(code, expectations, {transforms: ["jsx"]});
 }
 
 function assertTypeScriptAndFlowResult(code: string, expectedResult: string): void {
-  assertResult(code, expectedResult, {transforms: ["jsx", "imports", "typescript"]});
-  assertResult(code, expectedResult, {transforms: ["jsx", "imports", "flow"]});
+  assertResult(code, expectedResult, {transforms: ["jsx"]});
 }
 
 /**
@@ -21,7 +18,7 @@ describe("type transforms", () => {
       class A implements B {}
       class C extends D implements E {}
     `,
-      `"use strict";
+      `
       class A  {}
       class C extends D  {}
     `,
@@ -47,7 +44,7 @@ describe("type transforms", () => {
         }
       }
     `,
-      `"use strict";
+      `
       function f() {
         return 3;
       }
@@ -75,7 +72,7 @@ describe("type transforms", () => {
         const b = (a: number);
       }
     `,
-      `"use strict";
+      `
       function foo(x, y) {
         const a = "Hello";
         const b = (a);
@@ -91,7 +88,7 @@ describe("type transforms", () => {
         return [];
       }
     `,
-      `"use strict";
+      `
       function foo() {
         return [];
       }
@@ -106,7 +103,7 @@ describe("type transforms", () => {
         return [];
       }
     `,
-      `"use strict";
+      `
       function foo() {
         return [];
       }
@@ -122,7 +119,7 @@ describe("type transforms", () => {
         y: {} = {};
       }
     `,
-      `"use strict";
+      `
       class A {constructor() { A.prototype.__init.call(this);A.prototype.__init2.call(this); }
         __init() {this.x = 2}
         __init2() {this.y = {}}
@@ -138,7 +135,7 @@ describe("type transforms", () => {
         x: number;
       }
     `,
-      `"use strict";
+      `
       class A {
         
       }
@@ -161,7 +158,7 @@ describe("type transforms", () => {
         }
       }
     `,
-      `"use strict";
+      `
       function f(t) {
         console.log(t);
       }
@@ -184,10 +181,10 @@ describe("type transforms", () => {
         return x + 1;
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       function foo(x) {
+      `
+      export function foo(x) {
         return x + 1;
-      } exports.foo = foo;
+      }
     `,
     );
   });
@@ -198,7 +195,7 @@ describe("type transforms", () => {
       type foo = number;
       const x: foo = 3;
     `,
-      `"use strict";
+      `
       
       const x = 3;
     `,
@@ -208,12 +205,12 @@ describe("type transforms", () => {
   it("handles exported types", () => {
     assertTypeScriptAndFlowResult(
       `
-      export type foo = number | string;
-      export const x = 1;
+export type foo = number | string;
+export const x = 1;
     `,
-      `"use strict";${ESMODULE_PREFIX}
-      
-       const x = 1; exports.x = x;
+      `
+
+export const x = 1;
     `,
     );
   });
@@ -225,7 +222,7 @@ describe("type transforms", () => {
         return x;
       }
     `,
-      `"use strict";
+      `
       function foo(x) {
         return x;
       }
@@ -238,7 +235,7 @@ describe("type transforms", () => {
       `
       const x: | number | string = "Hello";
     `,
-      `"use strict";
+      `
       const x = "Hello";
     `,
     );
@@ -251,7 +248,7 @@ describe("type transforms", () => {
       const arr2: Array<Array<number>> = [[2]];
       const arr3: Array<Array<Array<number>>> = [[[3]]];
     `,
-      `"use strict";
+      `
       const arr1 = [[1]];
       const arr2 = [[2]];
       const arr3 = [[[3]]];
@@ -265,7 +262,7 @@ describe("type transforms", () => {
       interface Cartesian { x: number; y: number; }
       export interface Polar { r: number; theta: number; }
     `,
-      `"use strict";
+      `
       
 
     `,
@@ -279,7 +276,7 @@ describe("type transforms", () => {
         interface: true,
       };
     `,
-      `"use strict";
+      `
       const o = {
         interface: true,
       };
@@ -294,7 +291,7 @@ describe("type transforms", () => {
         return 'Hi!';
       }
     `,
-      `"use strict";
+      `
       function foo(x) {
         return 'Hi!';
       }
@@ -307,7 +304,7 @@ describe("type transforms", () => {
       `
       const f = <T>(t: T): number => 3;
     `,
-      `"use strict";
+      `
       const f = (t) => 3;
     `,
     );
@@ -318,7 +315,7 @@ describe("type transforms", () => {
       `
       const f: <T>(t: T) => number = () => 3;
     `,
-      `"use strict";
+      `
       const f = () => 3;
     `,
     );
@@ -329,7 +326,7 @@ describe("type transforms", () => {
       `
       class Foo<T> {}
     `,
-      `"use strict";
+      `
       class Foo {}
     `,
     );
@@ -342,7 +339,7 @@ describe("type transforms", () => {
         return -1;
       }
     `,
-      `"use strict";
+      `
       function foo() {
         return -1;
       }
@@ -358,7 +355,7 @@ describe("type transforms", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         b() {
         }
@@ -374,7 +371,7 @@ describe("type transforms", () => {
         source: Map<B, C>,
       };
     `,
-      `"use strict";
+      `
       
 
 
@@ -390,7 +387,7 @@ describe("type transforms", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         constructor() {
         }
@@ -404,7 +401,7 @@ describe("type transforms", () => {
       `
       const f = (x?: number) => x + 1;
     `,
-      `"use strict";
+      `
       const f = (x) => x + 1;
     `,
     );
@@ -415,7 +412,7 @@ describe("type transforms", () => {
       `
       class A extends B<C> {}
     `,
-      `"use strict";
+      `
       class A extends B {}
     `,
     );
@@ -426,7 +423,7 @@ describe("type transforms", () => {
       `
       a ? (b) : c;
     `,
-      `"use strict";
+      `
       a ? (b) : c;
     `,
     );
@@ -437,7 +434,7 @@ describe("type transforms", () => {
       `
       a ? (b) : c
     `,
-      `"use strict";
+      `
       a ? (b) : c
     `,
     );
@@ -448,7 +445,7 @@ describe("type transforms", () => {
       `
       a ? (b) : [1 + 1];
     `,
-      `"use strict";
+      `
       a ? (b) : [1 + 1];
     `,
     );
@@ -459,7 +456,7 @@ describe("type transforms", () => {
       `
       async (1, 2, 3);
     `,
-      `"use strict";
+      `
       async (1, 2, 3);
     `,
     );
@@ -470,7 +467,7 @@ describe("type transforms", () => {
       `
       async <T>(1, 2, 3);
     `,
-      `"use strict";
+      `
       async ( 1, 2, 3);
     `,
     );
@@ -484,7 +481,7 @@ describe("type transforms", () => {
         return a;
       }
     `,
-      `"use strict";
+      `
       const test = (a) => a;
       function test2(a) {
         return a;
@@ -526,7 +523,7 @@ describe("type transforms", () => {
       `
       function foo(a: function) {}
     `,
-      `"use strict";
+      `
       function foo(a) {}
     `,
     );

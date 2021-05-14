@@ -1,4 +1,3 @@
-import type CJSImportProcessor from "../CJSImportProcessor";
 import type {Options} from "../index";
 import type NameManager from "../NameManager";
 import XHTMLEntities from "../parser/plugins/jsx/xhtml";
@@ -21,7 +20,7 @@ export default class JSXTransformer extends Transformer {
   constructor(
     readonly rootTransformer: RootTransformer,
     readonly tokens: TokenProcessor,
-    readonly importProcessor: CJSImportProcessor | null,
+    readonly importProcessor: null,
     readonly nameManager: NameManager,
     readonly options: Options,
   ) {
@@ -206,19 +205,14 @@ export default class JSXTransformer extends Transformer {
 
   processJSXTag(): void {
     const {jsxPragmaInfo} = this;
-    const resolvedPragmaBaseName = this.importProcessor
-      ? this.importProcessor.getIdentifierReplacement(jsxPragmaInfo.base) || jsxPragmaInfo.base
-      : jsxPragmaInfo.base;
+    const resolvedPragmaBaseName = jsxPragmaInfo.base;
     const firstTokenStart = this.tokens.currentToken().start;
     // First tag is always jsxTagStart.
     this.tokens.replaceToken(`${resolvedPragmaBaseName}${jsxPragmaInfo.suffix}(`);
 
     if (this.tokens.matches1(tt.jsxTagEnd)) {
       // Fragment syntax.
-      const resolvedFragmentPragmaBaseName = this.importProcessor
-        ? this.importProcessor.getIdentifierReplacement(jsxPragmaInfo.fragmentBase) ||
-          jsxPragmaInfo.fragmentBase
-        : jsxPragmaInfo.fragmentBase;
+      const resolvedFragmentPragmaBaseName = jsxPragmaInfo.fragmentBase;
       this.tokens.replaceToken(
         `${resolvedFragmentPragmaBaseName}${jsxPragmaInfo.fragmentSuffix}, null`,
       );

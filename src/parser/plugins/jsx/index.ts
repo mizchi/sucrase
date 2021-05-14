@@ -9,7 +9,7 @@ import {
   Token,
 } from "../../tokenizer/index";
 import {TokenType as tt} from "../../tokenizer/types";
-import {input, isTypeScriptEnabled, state} from "../../traverser/base";
+import {input, state} from "../../traverser/base";
 import {parseExpression, parseMaybeAssign} from "../../traverser/expression";
 import {expect, unexpected} from "../../traverser/util";
 import {charCodes} from "../../util/charcodes";
@@ -180,9 +180,7 @@ function jsxParseOpeningElement(): boolean {
     return false;
   }
   jsxParseElementName();
-  if (isTypeScriptEnabled) {
-    tsTryParseJSXTypeArgument();
-  }
+  tsTryParseJSXTypeArgument();
   while (!match(tt.slash) && !match(tt.jsxTagEnd) && !state.error) {
     jsxParseAttribute();
   }

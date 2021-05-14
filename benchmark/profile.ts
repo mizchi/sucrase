@@ -14,7 +14,7 @@ function main(): void {
   (console as any).profile("Sucrase");
   for (let i = 0; i < 3000; i++) {
     sucrase.transform(code, {
-      transforms: ["jsx", "imports", "typescript"],
+      transforms: ["jsx"],
     });
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

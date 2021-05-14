@@ -10,7 +10,7 @@ describe("getFormattedTokens", () => {
 if (foo) {
   console.log('Hello world!');
 }`,
-        {transforms: ["jsx", "imports"]},
+        {transforms: ["jsx"]},
       ),
       `\
 Location  Label  Raw            contextualKeyword scopeDepth isType identifierRole shadowsGlobal isAsyncOperation contextId rhsEndIndex isExpression numNullishCoalesceStarts numNullishCoalesceEnds isOptionalChainStart isOptionalChainEnd subscriptStartIndex nullishStartIndex

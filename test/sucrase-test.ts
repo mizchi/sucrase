@@ -2,8 +2,6 @@ import {
   ASYNC_NULLISH_COALESCE_PREFIX,
   ASYNC_OPTIONAL_CHAIN_DELETE_PREFIX,
   ASYNC_OPTIONAL_CHAIN_PREFIX,
-  ESMODULE_PREFIX,
-  IMPORT_DEFAULT_PREFIX,
   NULLISH_COALESCE_PREFIX,
   OPTIONAL_CHAIN_DELETE_PREFIX,
   OPTIONAL_CHAIN_PREFIX,
@@ -57,8 +55,8 @@ describe("sucrase", () => {
         delete: new KeywordTokenType("delete", { beforeExpr, prefix, startsExpr }),
       };
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       const keywords = {
+      `
+      export const keywords = {
         break: new KeywordTokenType("break"),
         case: new KeywordTokenType("case", { beforeExpr }),
         catch: new KeywordTokenType("catch"),
@@ -96,7 +94,7 @@ describe("sucrase", () => {
         typeof: new KeywordTokenType("typeof", { beforeExpr, prefix, startsExpr }),
         void: new KeywordTokenType("void", { beforeExpr, prefix, startsExpr }),
         delete: new KeywordTokenType("delete", { beforeExpr, prefix, startsExpr }),
-      }; exports.keywords = keywords;
+      };
     `,
     );
   });
@@ -108,7 +106,7 @@ describe("sucrase", () => {
         function: 3,
       };
     `,
-      `"use strict";
+      `
       const o = {
         function: 3,
       };
@@ -124,13 +122,13 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         [b]() {
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -145,7 +143,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         get foo() {
           return 3;
@@ -154,7 +152,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -164,11 +162,11 @@ describe("sucrase", () => {
       if (foo.case === 3) {
       }
     `,
-      `"use strict";
+      `
       if (foo.case === 3) {
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -182,7 +180,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       function foo() {
         outer: switch (a) {
           default:
@@ -190,7 +188,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -205,7 +203,7 @@ describe("sucrase", () => {
         const x = 3;
       }
     `,
-      `"use strict";
+      `
       /**
        * This is a JSDoc comment.
        */
@@ -214,7 +212,7 @@ describe("sucrase", () => {
         const x = 3;
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -228,7 +226,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         get() {
         }
@@ -236,7 +234,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -248,13 +246,13 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         async foo() {
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -266,13 +264,13 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         *foo() {
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -285,14 +283,14 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class C {
         async *m() {
           yield await 1;
         }
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -302,25 +300,25 @@ describe("sucrase", () => {
       const n = 1_000_000;
       const x = 12_34.56_78;
     `,
-      `"use strict";
+      `
       const n = 1000000;
       const x = 1234.5678;
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
-  it("allows using the import keyword as an export", () => {
+  it.skip("allows using the import keyword as an export", () => {
     assertResult(
       `
       const Import = null;
       export {Import as import};
     `,
-      `"use strict";${ESMODULE_PREFIX}
+      `
       const Import = null;
       exports.import = Import;
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -331,12 +329,12 @@ describe("sucrase", () => {
         static x = 3;
       }
     `,
-      `"use strict";
+      `
       class A {
         static __initStatic() {this.x = 3}
       } A.__initStatic();
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -347,12 +345,12 @@ describe("sucrase", () => {
         static x = 3;
       }
     `,
-      `"use strict"; var _class;
+      ` var _class;
       const A = (_class = class {
         static __initStatic() {this.x = 3}
       }, _class.__initStatic(), _class)
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -363,12 +361,12 @@ describe("sucrase", () => {
         x = 3;
       }
     `,
-      `"use strict"; var _class;
+      ` var _class;
       const A = (_class = class {constructor() { _class.prototype.__init.call(this); }
         __init() {this.x = 3}
       }, _class)
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -379,12 +377,12 @@ describe("sucrase", () => {
         static x = 3;
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class C {
+      `
+      export default class C {
         static __initStatic() {this.x = 3}
-      } C.__initStatic(); exports.default = C;
+      } C.__initStatic();
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -398,15 +396,15 @@ describe("sucrase", () => {
         static b = B;
       }
     `,
-      `"use strict";${IMPORT_DEFAULT_PREFIX}
-      var _A = require('A'); var _A2 = _interopRequireDefault(_A);
-      var _B = require('B'); var _B2 = _interopRequireDefault(_B);
+      `
+      import A from 'A';
+      import B from 'B';
       class C {constructor() { C.prototype.__init.call(this); }
-        __init() {this.a = _A2.default}
-        static __initStatic() {this.b = _B2.default}
+        __init() {this.a = A}
+        static __initStatic() {this.b = B}
       } C.__initStatic();
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -416,9 +414,9 @@ describe("sucrase", () => {
       console.log("Hello");
     `,
       `#!/usr/bin/env node
-"use strict";      console.log("Hello");
+      console.log("Hello");
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -432,7 +430,7 @@ describe("sucrase", () => {
         console.log("Failed!");
       }
     `,
-      `"use strict";
+      `
       const e = 3;
       try {
         console.log(e);
@@ -440,7 +438,7 @@ describe("sucrase", () => {
         console.log("Failed!");
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -449,10 +447,10 @@ describe("sucrase", () => {
       `
       [a] = b;
     `,
-      `"use strict";
+      `
       [a] = b;
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -461,10 +459,10 @@ describe("sucrase", () => {
       `
       const x = +(y);
     `,
-      `"use strict";
+      `
       const x = +(y);
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -476,13 +474,13 @@ describe("sucrase", () => {
         }
       };
     `,
-      `"use strict";
+      `
       const o = {
         async f() {
         }
       };
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -491,10 +489,10 @@ describe("sucrase", () => {
       `
       const s = 'ab\\'cd';
     `,
-      `"use strict";
+      `
       const s = 'ab\\'cd';
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -506,12 +504,12 @@ describe("sucrase", () => {
         static x = 1;
       }
     `,
-      `"use strict";
+      `
        @dec class A {
         
       } A.x = 1; exports.default = A;
     `,
-      {transforms: ["jsx", "imports"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -522,12 +520,12 @@ describe("sucrase", () => {
       c ||= d;
       e ??= f;
     `,
-      `"use strict";
+      `
       a &&= b;
       c ||= d;
       e ??= f;
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -544,7 +542,7 @@ describe("sucrase", () => {
         outerMethod() {}
       }
     `,
-      `"use strict";
+      `
       class Bar{
         @(
           @classDec class { 
@@ -555,7 +553,7 @@ describe("sucrase", () => {
         outerMethod() {}
       }
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -564,10 +562,10 @@ describe("sucrase", () => {
       `
       const createReactClass = 3;
     `,
-      `"use strict";
+      `
       const createReactClass = 3;
     `,
-      {transforms: ["jsx", "imports", "typescript"]},
+      {transforms: ["jsx"]},
     );
   });
 
@@ -581,7 +579,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         static __initStatic() {this.b = {}}
         c () {
@@ -589,7 +587,7 @@ describe("sucrase", () => {
         }
       } A.__initStatic();
     `,
-      {transforms: ["imports"]},
+      {transforms: []},
     );
   });
 
@@ -604,16 +602,16 @@ describe("sucrase", () => {
       
       export default function() {}
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class Observer {constructor() { Observer.prototype.__init.call(this);Observer.prototype.__init2.call(this);Observer.prototype.__init3.call(this); }
+      `
+      export class Observer {constructor() { Observer.prototype.__init.call(this);Observer.prototype.__init2.call(this);Observer.prototype.__init3.call(this); }
         __init() {this.update = (v) => {}}
         __init2() {this.complete = () => {}}
         __init3() {this.error = (err) => {}}
-      } exports.Observer = Observer;
+      }
       
-      exports. default = function() {}
+      export default function() {}
     `,
-      {transforms: ["imports", "typescript"]},
+      {transforms: []},
     );
   });
 
@@ -624,12 +622,12 @@ describe("sucrase", () => {
         ;
       }
     `,
-      `"use strict";
+      `
       class A {
         
       }
     `,
-      {transforms: ["imports", "typescript"]},
+      {transforms: []},
     );
   });
 
@@ -640,12 +638,12 @@ describe("sucrase", () => {
         // This is a comment.
       }
     `,
-      `"use strict";
+      `
       
 
 
     `,
-      {transforms: ["imports", "typescript"]},
+      {transforms: []},
     );
   });
 
@@ -658,14 +656,14 @@ describe("sucrase", () => {
         static "test" = "value";
       }
     `,
-      `"use strict";
+      `
       class C {
         static __initStatic() {this[f] = 3}
         static __initStatic2() {this[5] = 'Hello'}
         static __initStatic3() {this["test"] = "value"}
       } C.__initStatic(); C.__initStatic2(); C.__initStatic3();
     `,
-      {transforms: ["imports", "typescript"]},
+      {transforms: []},
     );
   });
 
@@ -681,7 +679,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class C {constructor() { C.prototype.__init.call(this); }
         f() {
         }
@@ -691,7 +689,7 @@ describe("sucrase", () => {
         }}
       }
     `,
-      {transforms: ["imports", "typescript"]},
+      {transforms: []},
     );
   });
 
@@ -714,12 +712,12 @@ describe("sucrase", () => {
       async
       x => x
     `,
-      `"use strict";${IMPORT_DEFAULT_PREFIX}
-      var _foo = require('foo'); var _foo2 = _interopRequireDefault(_foo);
-      _foo2.default
+      `
+      import async from 'foo';
+      async
       x => x
     `,
-      {transforms: ["imports"]},
+      {transforms: []},
     );
   });
 
@@ -785,7 +783,7 @@ describe("sucrase", () => {
         return x + 1;
       }
     `,
-      {transforms: ["typescript"]},
+      {transforms: []},
     );
   });
 
@@ -794,7 +792,7 @@ describe("sucrase", () => {
   });
 
   it("handles a file with only an assignment", () => {
-    assertResult("a = 1", '"use strict";a = 1', {transforms: ["imports"]});
+    assertResult("a = 1", "a = 1", {transforms: []});
   });
 
   it("handles a standalone comment that looks like it could be a regex", () => {
@@ -1058,7 +1056,7 @@ describe("sucrase", () => {
       setOutput(1 ?? 2 as any);
     `,
       1,
-      {transforms: ["typescript"]},
+      {transforms: []},
     );
   });
 
@@ -1074,7 +1072,7 @@ describe("sucrase", () => {
         bar: _nullishCoalesce(baz, () => ( null ))
       }
     `,
-      {transforms: ["typescript"]},
+      {transforms: []},
     );
   });
 
@@ -1256,7 +1254,7 @@ describe("sucrase", () => {
         }
       }
     `,
-      {transforms: ["typescript"]},
+      {transforms: []},
     );
   });
 

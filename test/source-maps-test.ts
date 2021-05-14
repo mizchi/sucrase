@@ -11,7 +11,7 @@ describe("source maps", () => {
       console.log(x + 1);
     `,
       {
-        transforms: ["imports", "typescript"],
+        transforms: [],
         sourceMapOptions: {compiledFilename: "test.js"},
         filePath: "test.ts",
       },

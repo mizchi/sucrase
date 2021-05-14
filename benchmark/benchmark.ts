@@ -216,9 +216,7 @@ async function benchmarkFiles(benchmarkOptions: BenchmarkOptions): Promise<void>
   /* eslint-disable @typescript-eslint/require-await */
   await runBenchmark("Sucrase", benchmarkOptions, async (code: string, path: string) => {
     return sucrase.transform(code, {
-      transforms: path.endsWith(".ts")
-        ? ["imports", "typescript"]
-        : ["jsx", "imports", "typescript"],
+      transforms: ["jsx"],
     }).code;
   });
   if (benchmarkOptions.sucraseOnly) {
@@ -271,7 +269,9 @@ async function benchmarkFiles(benchmarkOptions: BenchmarkOptions): Promise<void>
       },
     }).outputText;
   });
+  // @ts-ignore
   await runBenchmark("Babel", benchmarkOptions, async (code: string, path: string) => {
+    // @ts-ignore
     return babel.transformSync(code, {
       filename: path.endsWith(".ts") ? "sample.ts" : "sample.tsx",
       presets: path.endsWith(".ts")

@@ -1,7 +1,7 @@
 import {throws} from "assert";
 
 import {transform, Transform} from "../src";
-import {IMPORT_DEFAULT_PREFIX, JSX_PREFIX} from "./prefixes";
+import {JSX_PREFIX} from "./prefixes";
 import * as util from "./util";
 
 const {devProps} = util;
@@ -412,16 +412,16 @@ describe("transform JSX", () => {
         </>
       );
     `,
-      `"use strict";${JSX_PREFIX}${IMPORT_DEFAULT_PREFIX}
-      var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+      `${JSX_PREFIX}
+      import React from 'react';
       const f = (
-        _react2.default.createElement(_react2.default.Fragment, null
-          , _react2.default.createElement('div', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 5}} )
-          , _react2.default.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 6}} )
+        React.createElement(React.Fragment, null
+          , React.createElement('div', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 5}} )
+          , React.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 6}} )
         )
       );
     `,
-      {extraTransforms: ["imports"]},
+      {extraTransforms: []},
     );
   });
 
@@ -458,16 +458,16 @@ describe("transform JSX", () => {
         </>
       );
     `,
-      `"use strict";${JSX_PREFIX}
-      var _preact = require('preact');
+      `const _jsxFileName = "";
+      import {h, Fragment} from 'preact';
       const f = (
-        _preact.h(_preact.Fragment, null
-          , _preact.h('div', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 5}} )
-          , _preact.h('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 6}} )
+        h(Fragment, null
+          , h('div', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 5}} )
+          , h('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 6}} )
         )
       );
     `,
-      {extraTransforms: ["imports"], jsxPragma: "h", jsxFragmentPragma: "Fragment"},
+      {extraTransforms: [], jsxPragma: "h", jsxFragmentPragma: "Fragment"},
     );
   });
 

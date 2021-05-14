@@ -1,26 +1,18 @@
-import {
-  CREATE_STAR_EXPORT_PREFIX,
-  ESMODULE_PREFIX,
-  IMPORT_DEFAULT_PREFIX,
-  IMPORT_WILDCARD_PREFIX,
-  JSX_PREFIX,
-  OPTIONAL_CHAIN_PREFIX,
-} from "./prefixes";
+import {JSX_PREFIX, OPTIONAL_CHAIN_PREFIX} from "./prefixes";
 import {assertResult, devProps} from "./util";
 
 function assertTypeScriptResult(code: string, expectedResult: string): void {
-  assertResult(code, expectedResult, {transforms: ["jsx", "imports", "typescript"]});
+  assertResult(code, expectedResult, {transforms: ["jsx"]});
 }
 
 function assertTypeScriptESMResult(code: string, expectedResult: string): void {
-  assertResult(code, expectedResult, {transforms: ["jsx", "typescript"]});
+  assertResult(code, expectedResult, {transforms: ["jsx"]});
 }
 
 function assertTypeScriptImportResult(
   code: string,
-  {expectedCJSResult, expectedESMResult}: {expectedCJSResult: string; expectedESMResult: string},
+  {expectedESMResult}: {expectedESMResult: string},
 ): void {
-  assertTypeScriptResult(code, expectedCJSResult);
   assertTypeScriptESMResult(code, expectedESMResult);
 }
 
@@ -31,7 +23,7 @@ describe("typescript transform", () => {
       const x = 0;
       console.log(x as string);
     `,
-      `"use strict";
+      `
       const x = 0;
       console.log(x );
     `,
@@ -44,7 +36,7 @@ describe("typescript transform", () => {
       const as = "Hello";
       console.log(as);
     `,
-      `"use strict";
+      `
       const as = "Hello";
       console.log(as);
     `,
@@ -61,7 +53,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         
          c() {
@@ -82,7 +74,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         __init() {this.x = 1}
         constructor() {;A.prototype.__init.call(this);
@@ -103,7 +95,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         __init() {this.x = 1}
         constructor(a) {
@@ -125,7 +117,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         __init() {this.x = 1}
         constructor(a) {
@@ -148,7 +140,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         __init() {this.x = 1}
         constructor(a) {
@@ -171,7 +163,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         __init() {this.x = 1}
         constructor(a) {
@@ -195,7 +187,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         __init() {this.x = 1}
         constructor(a) {
@@ -220,7 +212,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         __init() {this.x = 1}
         constructor(a) {
@@ -240,7 +232,7 @@ describe("typescript transform", () => {
         x = 1;
       }
     `,
-      `"use strict";
+      `
       class A {constructor() { A.prototype.__init.call(this); }
         __init() {this.x = 1}
       }
@@ -255,7 +247,7 @@ describe("typescript transform", () => {
         x = 1;
       }
     `,
-      `"use strict";
+      `
       class A extends B {constructor(...args) { super(...args); A.prototype.__init.call(this); }
         __init() {this.x = 1}
       }
@@ -270,7 +262,7 @@ describe("typescript transform", () => {
         args = 1;
       }
     `,
-      `"use strict";
+      `
       class A extends B {constructor(...args2) { super(...args2); A.prototype.__init.call(this); }
         __init() {this.args = 1}
       }
@@ -286,7 +278,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         constructor( x) {;this.x = x;
         }
@@ -304,7 +296,7 @@ describe("typescript transform", () => {
       const a = (x)!(y);
       const b = x + !y;
     `,
-      `"use strict";
+      `
       const x = 1;
       const y = x;
       const z = !x; 
@@ -322,11 +314,11 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class Foo {
+      `
+      export default class Foo {
         static run() {
         }
-      } exports.default = Foo;
+      }
     `,
     );
   });
@@ -339,11 +331,11 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class Foo {
+      `
+      export default class Foo {
         async run() {
         }
-      } exports.default = Foo;
+      }
     `,
     );
   });
@@ -355,7 +347,7 @@ describe("typescript transform", () => {
         return x === 0;
       }
     `,
-      `"use strict";
+      `
       function foo(x) {
         return x === 0;
       }
@@ -372,7 +364,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         foo() {
           return false;
@@ -389,10 +381,10 @@ describe("typescript transform", () => {
         return list.reduce((memo, item) => memo.concat(map(item)), [] as Array<U>);
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       function flatMap(list, map) {
+      `
+      export default function flatMap(list, map) {
         return list.reduce((memo, item) => memo.concat(map(item)), [] );
-      } exports.default = flatMap;
+      }
     `,
     );
   });
@@ -403,7 +395,7 @@ describe("typescript transform", () => {
       export interface A extends B {
       }
     `,
-      `"use strict";
+      `
       
 
     `,
@@ -419,7 +411,6 @@ describe("typescript transform", () => {
       import D from 'd';
       import 'd';
       import E from 'e';
-      
       function f(a: A): boolean {
         return a instanceof A;
       }
@@ -427,16 +418,15 @@ describe("typescript transform", () => {
         return true;
       }
     `,
-      `"use strict";${IMPORT_DEFAULT_PREFIX}
-      var _a = require('a'); var _a2 = _interopRequireDefault(_a);
-      
-      require('c');
-      var _d = require('d'); var _d2 = _interopRequireDefault(_d);
-      
-      
-      
+      `
+      import A from 'a';
+
+      import 'c';
+
+      import 'd';
+
       function f(a) {
-        return a instanceof _a2.default;
+        return a instanceof A;
       }
       function g(b) {
         return true;
@@ -453,7 +443,7 @@ describe("typescript transform", () => {
         f: any = function() {};
       }
     `,
-      `"use strict";
+      `
       class A {constructor() { A.prototype.__init.call(this); }
         
         __init() {this.f = function() {}}
@@ -467,8 +457,8 @@ describe("typescript transform", () => {
       `
       export abstract class A {}
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class A {} exports.A = A;
+      `
+      export  class A {}
     `,
     );
   });
@@ -478,7 +468,7 @@ describe("typescript transform", () => {
       `
       values.filter((node): node is Node => node !== null);
     `,
-      `"use strict";
+      `
       values.filter((node) => node !== null);
     `,
     );
@@ -491,7 +481,7 @@ describe("typescript transform", () => {
       values.filter<Node>((node): node is Node => node !== null);
       const c = new Cache<number>();
     `,
-      `"use strict";
+      `
       const f = f(y);
       values.filter((node) => node !== null);
       const c = new Cache();
@@ -508,7 +498,7 @@ describe("typescript transform", () => {
         "Hello, world" = 2;
       }
     `,
-      `"use strict";
+      `
       class A {constructor() { A.prototype.__init.call(this);A.prototype.__init2.call(this);A.prototype.__init3.call(this); }
         __init() {this[a + b] = 3}
         __init2() {this[0] = 1}
@@ -527,7 +517,7 @@ describe("typescript transform", () => {
         C
       }
     `,
-      `"use strict";
+      `
       var Foo; (function (Foo) {
         const A = 0; Foo[Foo["A"] = A] = "A";
         const B = A + 1; Foo[Foo["B"] = B] = "B";
@@ -546,7 +536,7 @@ describe("typescript transform", () => {
         C = "sea",
       }
     `,
-      `"use strict";
+      `
       var Foo; (function (Foo) {
         const A = "eh"; Foo["A"] = A;
         const B = "bee"; Foo["B"] = B;
@@ -573,7 +563,7 @@ describe("typescript transform", () => {
         "'",
       }
     `,
-      `"use strict";
+      `
       var Foo; (function (Foo) {
         const A = 15.5; Foo[Foo["A"] = A] = "A";
         Foo[Foo["Hello world"] = A / 2] = "Hello world";
@@ -600,7 +590,7 @@ describe("typescript transform", () => {
         console.log(x);
       }
     `,
-      `"use strict";
+      `
       
 
       function foo(x) {
@@ -618,7 +608,7 @@ describe("typescript transform", () => {
         export = result;
       }
     `,
-      `"use strict";
+      `
       
 
 
@@ -633,7 +623,7 @@ describe("typescript transform", () => {
       declare global {
       }
     `,
-      `"use strict";
+      `
       
 
     `,
@@ -646,7 +636,7 @@ describe("typescript transform", () => {
       export declare class Foo {
       }
     `,
-      `"use strict";
+      `
       
 
     `,
@@ -660,7 +650,7 @@ describe("typescript transform", () => {
         return "Hello!";
       }
     `,
-      `"use strict";
+      `
       function foo(declare) {
         return "Hello!";
       }
@@ -676,7 +666,7 @@ describe("typescript transform", () => {
         constructor(set: any, readonly: boolean) {}
       }
     `,
-      `"use strict";
+      `
       class Foo {
         constructor(set, readonly) {}
         constructor(set, readonly) {}
@@ -694,7 +684,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class Foo {
         bar(readonly) {
           console.log(readonly);
@@ -710,9 +700,9 @@ describe("typescript transform", () => {
       export default abstract class Foo {
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class Foo {
-      } exports.default = Foo;
+      `
+      export default  class Foo {
+      }
     `,
     );
   });
@@ -723,8 +713,8 @@ describe("typescript transform", () => {
       import * as f from './myFunc';
       console.log(f());
     `,
-      `"use strict";${IMPORT_WILDCARD_PREFIX}
-      var _myFunc = require('./myFunc'); var f = _interopRequireWildcard(_myFunc);
+      `
+      import * as f from './myFunc';
       console.log(f());
     `,
     );
@@ -738,7 +728,7 @@ describe("typescript transform", () => {
         Bar,
       }
     `,
-      `"use strict";
+      `
       var A; (function (A) {
         const Foo = 0; A[A["Foo"] = Foo] = "Foo";
         const Bar = Foo + 1; A[A["Bar"] = Bar] = "Bar";
@@ -755,11 +745,11 @@ describe("typescript transform", () => {
         Bar,
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-      var A; (function (A) {
+      `
+      export var A; (function (A) {
         const Foo = 0; A[A["Foo"] = Foo] = "Foo";
         const Bar = Foo + 1; A[A["Bar"] = Bar] = "Bar";
-      })(A || (exports.A = A = {}));
+      })(A || (A = {}));
     `,
     );
   });
@@ -772,11 +762,11 @@ describe("typescript transform", () => {
         Bar,
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-      var A; (function (A) {
+      `
+      export var A; (function (A) {
         const Foo = 0; A[A["Foo"] = Foo] = "Foo";
         const Bar = Foo + 1; A[A["Bar"] = Bar] = "Bar";
-      })(A || (exports.A = A = {}));
+      })(A || (A = {}));
     `,
     );
   });
@@ -787,7 +777,7 @@ describe("typescript transform", () => {
       abstract class A {
       }
     `,
-      `"use strict";
+      `
        class A {
       }
     `,
@@ -804,13 +794,13 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class A {
+      `
+      export  class A {
         
         b() {
           console.log("hello");
         }
-      } exports.A = A;
+      }
     `,
     );
   });
@@ -821,24 +811,9 @@ describe("typescript transform", () => {
       import A from 'a';
       export {A};
     `,
-      `"use strict";${ESMODULE_PREFIX}${IMPORT_DEFAULT_PREFIX}
-      var _a = require('a'); var _a2 = _interopRequireDefault(_a);
-      exports.A = _a2.default;
-    `,
-    );
-  });
-
-  it("allows TypeScript CJS-style imports and exports", () => {
-    assertTypeScriptResult(
       `
-      import a = require('a');
-      console.log(a);
-      export = 3;
-    `,
-      `"use strict";
-      const a = require('a');
-      console.log(a);
-      module.exports = 3;
+      import A from 'a';
+      export {A};
     `,
     );
   });
@@ -850,7 +825,7 @@ describe("typescript transform", () => {
         return this + x;
       }
     `,
-      `"use strict";
+      `
       function foo( x) {
         return this + x;
       }
@@ -863,8 +838,8 @@ describe("typescript transform", () => {
       `
       export * from './MyVars';
     `,
-      `"use strict";${ESMODULE_PREFIX}${CREATE_STAR_EXPORT_PREFIX}
-      var _MyVars = require('./MyVars'); _createStarExport(_MyVars);
+      `
+      export * from './MyVars';
     `,
     );
   });
@@ -878,7 +853,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         __init() {this.x = 1}
          constructor() {;A.prototype.__init.call(this);
@@ -893,10 +868,10 @@ describe("typescript transform", () => {
       `
       const x = <number>3;
     `,
-      `"use strict";
+      `
       const x = 3;
     `,
-      {transforms: ["typescript", "imports"]},
+      {transforms: []},
     );
   });
 
@@ -907,7 +882,7 @@ describe("typescript transform", () => {
         new(): Foo;
       }
     `,
-      `"use strict";
+      `
       
 
 
@@ -923,7 +898,7 @@ describe("typescript transform", () => {
         b: 2,
       }
     `,
-      `"use strict";
+      `
       const o = {
         a: 1,
         b: 2,
@@ -937,7 +912,7 @@ describe("typescript transform", () => {
       `
       (a as b) = c;
     `,
-      `"use strict";
+      `
       (a ) = c;
     `,
     );
@@ -950,7 +925,7 @@ describe("typescript transform", () => {
       new C<T>();
       type A = T<T>;
     `,
-      `"use strict";
+      `
       f();
       new C();
       
@@ -963,7 +938,7 @@ describe("typescript transform", () => {
       `
       let y: unique symbol;
     `,
-      `"use strict";
+      `
       let y;
     `,
     );
@@ -975,7 +950,7 @@ describe("typescript transform", () => {
       const foo = async (...args: any[]) => {}
       const bar = async (...args?: any[]) => {}
     `,
-      `"use strict";
+      `
       const foo = async (...args) => {}
       const bar = async (...args) => {}
     `,
@@ -987,7 +962,7 @@ describe("typescript transform", () => {
       `
       type A = B extends C ? D : E;
     `,
-      `"use strict";
+      `
       
     `,
     );
@@ -998,7 +973,7 @@ describe("typescript transform", () => {
       `
       type Element<T> = T extends (infer U)[] ? U : T;
     `,
-      `"use strict";
+      `
       
     `,
     );
@@ -1014,7 +989,7 @@ describe("typescript transform", () => {
         }
       }
     `,
-      `"use strict";
+      `
       class A {
         
         getFoo() {
@@ -1032,7 +1007,7 @@ describe("typescript transform", () => {
       initX();
       console.log(x + 1);
     `,
-      `"use strict";
+      `
       let x;
       initX();
       console.log(x + 1);
@@ -1046,7 +1021,7 @@ describe("typescript transform", () => {
       let map: { +readonly [P in string]+?: number; };
       let map2: { -readonly [P in string]-?: number };
     `,
-      `"use strict";
+      `
       let map;
       let map2;
     `,
@@ -1063,7 +1038,6 @@ describe("typescript transform", () => {
       import someProp from './someProp';
       import lowercaseComponent from './lowercaseComponent';
       import div from './div';
-      
       const x: Bar = 3;
       function render(): JSX.Element {
         return (
@@ -1074,21 +1048,20 @@ describe("typescript transform", () => {
         );
       }
     `,
-      `"use strict";${JSX_PREFIX}${IMPORT_DEFAULT_PREFIX}
-      var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+      `const _jsxFileName = "";
+      import React from 'react';
       
-      var _Foo = require('./Foo'); var _Foo2 = _interopRequireDefault(_Foo);
-      
-      
-      var _lowercaseComponent = require('./lowercaseComponent'); var _lowercaseComponent2 = _interopRequireDefault(_lowercaseComponent);
-      
-      
+      import Foo from './Foo';
+
+
+      import lowercaseComponent from './lowercaseComponent';
+
       const x = 3;
       function render() {
         return (
-          _react2.default.createElement('div', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 13}}
-            , _react2.default.createElement(_Foo2.default.Bar, { someProp: "a", __self: this, __source: {fileName: _jsxFileName, lineNumber: 14}} )
-            , _react2.default.createElement(_lowercaseComponent2.default.Thing, {__self: this, __source: {fileName: _jsxFileName, lineNumber: 15}} )
+          React.createElement('div', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 12}}
+            , React.createElement(Foo.Bar, { someProp: "a", __self: this, __source: {fileName: _jsxFileName, lineNumber: 13}} )
+            , React.createElement(lowercaseComponent.Thing, {__self: this, __source: {fileName: _jsxFileName, lineNumber: 14}} )
           )
         );
       }
@@ -1104,10 +1077,10 @@ describe("typescript transform", () => {
         return <>Hello</>;
       }
     `,
-      `"use strict";${IMPORT_DEFAULT_PREFIX}
-      var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+      `
+      import React from 'react';
       function render() {
-        return _react2.default.createElement(_react2.default.Fragment, null, "Hello");
+        return React.createElement(React.Fragment, null, "Hello");
       }
     `,
     );
@@ -1127,7 +1100,7 @@ describe("typescript transform", () => {
         return A.B(C.D, null, "Hello");
       }
     `,
-      {transforms: ["typescript", "jsx"], jsxPragma: "A.B", jsxFragmentPragma: "C.D"},
+      {transforms: ["jsx"], jsxPragma: "A.B", jsxFragmentPragma: "C.D"},
     );
   });
 
@@ -1145,7 +1118,7 @@ describe("typescript transform", () => {
         return A.B('span', {${devProps(4)}} );
       }
     `,
-      {transforms: ["typescript", "jsx"], jsxPragma: "A.B", jsxFragmentPragma: "C.D"},
+      {transforms: ["jsx"], jsxPragma: "A.B", jsxFragmentPragma: "C.D"},
     );
   });
 
@@ -1216,7 +1189,7 @@ describe("typescript transform", () => {
         n?: number = 3;
       }
     `,
-      `"use strict";
+      `
       class A {constructor() { A.prototype.__init.call(this); }
         __init() {this.n = 3}
       }
@@ -1233,7 +1206,7 @@ describe("typescript transform", () => {
       const {a, ...b,} = c;
       const [a, ...b,] = c;
     `,
-      `"use strict";
+      `
       function foo(a, ...b,) {}
       const {a, ...b,} = c;
       const [a, ...b,] = c;
@@ -1251,13 +1224,13 @@ describe("typescript transform", () => {
           x = 1;
       }
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class Foo {constructor() { Foo.prototype.__init.call(this); }
+      `
+      export class Foo {constructor() { Foo.prototype.__init.call(this); }
           f() {
           }
           
           __init() {this.x = 1}
-      } exports.Foo = Foo;
+      }
     `,
     );
   });
@@ -1270,7 +1243,7 @@ describe("typescript transform", () => {
       const h: ({a: {b: [c]}}: any) => void = () => {};
       const o: ({a: {b: c}}) = {};
     `,
-      `"use strict";
+      `
       const f = () => {};
       const g = () => {};
       const h = () => {};
@@ -1285,7 +1258,7 @@ describe("typescript transform", () => {
       const e1 = <Foo<number> x="1" />
       const e2 = <Foo<string>><span>Hello</span></Foo>
     `,
-      `"use strict";const _jsxFileName = "";
+      `const _jsxFileName = "";
       const e1 = React.createElement(Foo, { x: "1", __self: this, __source: {fileName: _jsxFileName, lineNumber: 2}} )
       const e2 = React.createElement(Foo, {__self: this, __source: {fileName: _jsxFileName, lineNumber: 3}}, React.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 3}}, "Hello"))
     `,
@@ -1299,7 +1272,7 @@ describe("typescript transform", () => {
       new C<T>
       \`\`;
     `,
-      `"use strict";
+      `
       f\`\`;
       new C
       \`\`;
@@ -1312,7 +1285,7 @@ describe("typescript transform", () => {
       `
       export default interface A {}
     `,
-      `"use strict";
+      `
       
     `,
     );
@@ -1324,7 +1297,7 @@ describe("typescript transform", () => {
       @decorator<string>()
       class Test {}
     `,
-      `"use strict";
+      `
       @decorator()
       class Test {}
     `,
@@ -1336,7 +1309,7 @@ describe("typescript transform", () => {
       `
       let x: [string, number?, (string | number)?];
     `,
-      `"use strict";
+      `
       let x;
     `,
     );
@@ -1347,7 +1320,7 @@ describe("typescript transform", () => {
       `
       let x: [string, ...number[]];
     `,
-      `"use strict";
+      `
       let x;
     `,
     );
@@ -1359,7 +1332,7 @@ describe("typescript transform", () => {
       let x: [...number[], string];
       let y: [...[number, string], string];
     `,
-      `"use strict";
+      `
       let x;
       let y;
     `,
@@ -1375,36 +1348,11 @@ describe("typescript transform", () => {
         constructor(sn: string | number) {}
       }
     `,
-      `"use strict";
+      `
       class A {
         
 
         constructor(sn) {}
-      }
-    `,
-    );
-  });
-
-  it("properly elides CJS imports that only have value references in shadowed names", () => {
-    assertTypeScriptResult(
-      `
-      import T from './T';
-      
-      const x: T = 3;
-
-      function foo() {
-        let T = 3;
-        console.log(T);
-      }
-    `,
-      `"use strict";${IMPORT_DEFAULT_PREFIX}
-      
-      
-      const x = 3;
-
-      function foo() {
-        let T = 3;
-        console.log(T);
       }
     `,
     );
@@ -1477,8 +1425,8 @@ describe("typescript transform", () => {
       export class Foo {}
       let foo: Foo = new Foo();
     `,
-      `"use strict";${ESMODULE_PREFIX}
-       class Foo {} exports.Foo = Foo;
+      `
+      export class Foo {}
       let foo = new Foo();
     `,
     );
@@ -1489,7 +1437,7 @@ describe("typescript transform", () => {
       `
       a < b > c
     `,
-      `"use strict";
+      `
       a < b > c
     `,
     );
@@ -1503,11 +1451,6 @@ describe("typescript transform", () => {
       export {T, U as w};
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      
-
-      
-    `,
         expectedESMResult: `
       
 
@@ -1524,10 +1467,6 @@ describe("typescript transform", () => {
       export {T as u};
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      const T = 3;
-      exports.u = T;
-    `,
         expectedESMResult: `
       const T = 3;
       export {T as u};
@@ -1544,11 +1483,6 @@ describe("typescript transform", () => {
       export {T};
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      
-      const T = 3;
-      exports.T = T;
-    `,
         expectedESMResult: `
       
       const T = 3;
@@ -1571,16 +1505,6 @@ describe("typescript transform", () => {
       export {A, b, c, d, E, F, G, h, I, J};
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}${IMPORT_DEFAULT_PREFIX}
-      var _foo = require('./foo'); var _foo2 = _interopRequireDefault(_foo);
-      var E; (function (E) { const X = 1; E[E["X"] = X] = "X"; })(E || (E = {}));
-      class F {}
-      
-      function h() {}
-      const I = exports.I = require('./i');
-      
-      exports.A = _foo2.default; exports.b = _foo.b; exports.d = _foo.c; exports.E = E; exports.F = F; exports.h = h; exports.I = I;
-    `,
         expectedESMResult: `
       import A, {b, c as d} from './foo';
       var E; (function (E) { const X = 1; E[E["X"] = X] = "X"; })(E || (E = {}));
@@ -1605,13 +1529,6 @@ describe("typescript transform", () => {
       export {x, y, z};
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      const o = {x: 1};
-      const {x} = o;
-      const {x: y} = o;
-      
-      exports.x = x; exports.y = y;
-    `,
         expectedESMResult: `
       const o = {x: 1};
       const {x} = o;
@@ -1630,10 +1547,6 @@ describe("typescript transform", () => {
       export default T;
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      
-      ;
-    `,
         expectedESMResult: `
       
       ;
@@ -1649,10 +1562,6 @@ describe("typescript transform", () => {
       export default T | U;
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      
-      exports. default = T | U;
-    `,
         expectedESMResult: `
       
       export default T | U;
@@ -1668,10 +1577,6 @@ describe("typescript transform", () => {
       export default x;
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      
-      exports. default = x;
-    `,
         expectedESMResult: `
       
       export default x;
@@ -1686,9 +1591,6 @@ describe("typescript transform", () => {
       export default window;
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      exports. default = window;
-    `,
         expectedESMResult: `
       export default window;
     `,
@@ -1703,10 +1605,6 @@ describe("typescript transform", () => {
       export default x;
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      const x = 1;
-      exports. default = x;
-    `,
         expectedESMResult: `
       const x = 1;
       export default x;
@@ -1725,13 +1623,6 @@ describe("typescript transform", () => {
       const c: C = 2;
     `,
       {
-        expectedCJSResult: `"use strict";
-      ;
-      const B = require('B');
-      ;
-      B();
-      const c = 2;
-    `,
         expectedESMResult: `
       ;
       const B = require('B');
@@ -1753,11 +1644,6 @@ describe("typescript transform", () => {
       B();
     `,
       {
-        expectedCJSResult: `"use strict";${ESMODULE_PREFIX}
-      const A_1 = require("A");
-      const B = A_1.default.B;
-      B();
-    `,
         expectedESMResult: `
       import A from 'A';
       const B = A.B;
@@ -1795,7 +1681,7 @@ describe("typescript transform", () => {
       type
       Foo = string;
     `,
-      `"use strict";
+      `
       abstract
       class A {}
       declare
@@ -1829,7 +1715,7 @@ describe("typescript transform", () => {
       `
       let x = 5 as const;
     `,
-      `"use strict";
+      `
       let x = 5 ;
     `,
     );
@@ -1841,7 +1727,7 @@ describe("typescript transform", () => {
       let z: readonly number[];
       let z1: readonly [number, number];
     `,
-      `"use strict";
+      `
       let z;
       let z1;
     `,
@@ -1853,7 +1739,7 @@ describe("typescript transform", () => {
       `
       let x: \`foo\`;
     `,
-      `"use strict";
+      `
       let x;
     `,
     );
@@ -1868,7 +1754,7 @@ describe("typescript transform", () => {
       type SeussFish = \`\${Quantity | Color} fish\`;
       const fish: SeussFish = "blue fish";
     `,
-      `"use strict";
+      `
       
 
 
@@ -1885,7 +1771,7 @@ describe("typescript transform", () => {
       `
       type EnthusiasticGreeting<T extends string> = \`\${Uppercase<T>}\`;
     `,
-      `"use strict";
+      `
       
     `,
     );
@@ -1898,7 +1784,7 @@ describe("typescript transform", () => {
       type T = { n: 20n, m: -30n };
       function f(arg: [40n]): 50n[] {};
     `,
-      `"use strict";
+      `
       let x;
       
       function f(arg) {};
@@ -1913,7 +1799,7 @@ describe("typescript transform", () => {
       type T = { n: 20m, m: -30m };
       function f(arg: [40m]): 50m[] {};
     `,
-      `"use strict";
+      `
       let x;
       
       function f(arg) {};
@@ -1929,7 +1815,7 @@ describe("typescript transform", () => {
         readonly #y: number;
       }
     `,
-      `"use strict";
+      `
       class Foo {
          #x;
          #y;
@@ -1947,7 +1833,7 @@ describe("typescript transform", () => {
           }
       }
     `,
-      `"use strict";
+      `
       function assert(condition, msg) {
           if (!condition) {
               throw new AssertionError(msg)
@@ -1964,7 +1850,7 @@ describe("typescript transform", () => {
         if (x == null) throw "oh no";
       }
     `,
-      `"use strict";
+      `
       function assertIsDefined(x) {
         if (x == null) throw "oh no";
       }
@@ -1980,7 +1866,7 @@ describe("typescript transform", () => {
         isBaz = (): asserts this is Foo => {}
       }
     `,
-      `"use strict";
+      `
       class Foo {constructor() { Foo.prototype.__init.call(this); }
         isBar() {}
         __init() {this.isBaz = () => {}}
@@ -1996,7 +1882,7 @@ describe("typescript transform", () => {
         return false;
       }
     `,
-      `"use strict";
+      `
       function checkIsDefined(asserts) {
         return false;
       }
@@ -2011,7 +1897,7 @@ describe("typescript transform", () => {
         return false;
       }
     `,
-      `"use strict";
+      `
       function checkIsDefined(x) {
         return false;
       }
@@ -2024,7 +1910,7 @@ describe("typescript transform", () => {
       `
       example.inner?.greet<string>()
     `,
-      `"use strict";${OPTIONAL_CHAIN_PREFIX}
+      `${OPTIONAL_CHAIN_PREFIX}
       _optionalChain([example, 'access', _ => _.inner, 'optionalAccess', _2 => _2.greet, 'call', _3 => _3()])
     `,
     );
@@ -2037,7 +1923,7 @@ describe("typescript transform", () => {
         async method?(val: string): Promise<void>;
       }
     `,
-      `"use strict";
+      `
       class A extends B {
         
       }
@@ -2050,7 +1936,7 @@ describe("typescript transform", () => {
       `
       let x: [string, ...string[],]
     `,
-      `"use strict";
+      `
       let x
     `,
     );
@@ -2061,38 +1947,8 @@ describe("typescript transform", () => {
       `
       const x = a.b?.<number>();
     `,
-      `"use strict";${OPTIONAL_CHAIN_PREFIX}
+      `${OPTIONAL_CHAIN_PREFIX}
       const x = _optionalChain([a, 'access', _ => _.b, 'optionalCall', _2 => _2()]);
-    `,
-    );
-  });
-
-  it("parses and removes import type statements in CJS mode", () => {
-    assertTypeScriptResult(
-      `
-      import type foo from 'foo';
-      import bar from 'bar';
-      console.log(foo, bar);
-    `,
-      `"use strict";${IMPORT_DEFAULT_PREFIX}
-      
-      var _bar = require('bar'); var _bar2 = _interopRequireDefault(_bar);
-      console.log(foo, _bar2.default);
-    `,
-    );
-  });
-
-  it("parses and removes named import type statements in CJS mode", () => {
-    assertTypeScriptResult(
-      `
-      import type {foo} from 'foo';
-      import {bar} from 'bar';
-      console.log(foo, bar);
-    `,
-      `"use strict";
-      
-      var _bar = require('bar');
-      console.log(foo, _bar.bar);
     `,
     );
   });
@@ -2127,21 +1983,6 @@ describe("typescript transform", () => {
     );
   });
 
-  it("parses and removes export type statements in CJS mode", () => {
-    assertTypeScriptResult(
-      `
-      import T from './T';
-      let x: T;
-      export type {T};
-    `,
-      `"use strict";${ESMODULE_PREFIX}${IMPORT_DEFAULT_PREFIX}
-      var _T = require('./T'); var _T2 = _interopRequireDefault(_T);
-      let x;
-      ;
-    `,
-    );
-  });
-
   it("parses and removes export type statements in ESM mode", () => {
     assertTypeScriptESMResult(
       `
@@ -2152,19 +1993,6 @@ describe("typescript transform", () => {
       `
       import T from './T';
       let x;
-      ;
-    `,
-    );
-  });
-
-  it("parses and removes export type re-export statements in CJS mode", () => {
-    assertTypeScriptResult(
-      `
-      export type {T} from './T';
-      export type {T1 as TX, T2 as TY} from './OtherTs';
-    `,
-      `"use strict";${ESMODULE_PREFIX}
-      ;
       ;
     `,
     );
@@ -2190,7 +2018,7 @@ describe("typescript transform", () => {
         constructor(p = -1) {}
       }
     `,
-      `"use strict";
+      `
       class Foo {
         constructor(p = -1) {}
       }
@@ -2205,7 +2033,7 @@ describe("typescript transform", () => {
         constructor(a: number, readonly b: number, private c: number) {}
       }
     `,
-      `"use strict";
+      `
       class Foo {
         constructor(a,  b,  c) {;this.b = b;this.c = c;}
       }
@@ -2231,7 +2059,7 @@ describe("typescript transform", () => {
           }
       }
     `,
-      `"use strict";
+      `
       class Foo {
           
           
@@ -2256,7 +2084,7 @@ describe("typescript transform", () => {
       try {} catch (e: unknown) {}
       try {} catch (e: string | [...number, string]) {}
     `,
-      `"use strict";
+      `
       try {} catch (e) {}
       try {} catch (e) {}
     `,
@@ -2269,7 +2097,7 @@ describe("typescript transform", () => {
       type T1 = [x: number, y?: number, ...rest: number[]];
       function f(args: [s?: string, ...ns: number[]]) {}
     `,
-      `"use strict";
+      `
       
       function f(args) {}
     `,
@@ -2282,7 +2110,7 @@ describe("typescript transform", () => {
       const x: string | number = 1;
       if (x as number >= 5) {}
     `,
-      `"use strict";
+      `
       const x = 1;
       if (x  >= 5) {}
     `,
@@ -2294,7 +2122,7 @@ describe("typescript transform", () => {
       `
       type A = \`make\${A | B}\`;
     `,
-      `"use strict";
+      `
       
     `,
     );
@@ -2305,7 +2133,7 @@ describe("typescript transform", () => {
       `
       type A = \`foo\${{ [k: string]: number}}\`;
     `,
-      `"use strict";
+      `
       
     `,
     );
@@ -2326,7 +2154,7 @@ describe("typescript transform", () => {
         [K in keyof T as T[K] extends U ? K : never]: T[K]
       };
     `,
-      `"use strict";
+      `
       
 
 
@@ -2349,7 +2177,7 @@ describe("typescript transform", () => {
         { a, b }: T,
       ): T => {};
     `,
-      `"use strict";
+      `
       (
         { a, b },
       ) => {};
@@ -2366,7 +2194,7 @@ describe("typescript transform", () => {
         baz(a: string, b: number, []?): void;
       }
     `,
-      `"use strict";
+      `
       
 
 
@@ -2391,7 +2219,7 @@ describe("typescript transform", () => {
         declare = 2;
       }
     `,
-      `"use strict";
+      `
       class A {
         declare() {
         }
@@ -2416,7 +2244,7 @@ describe("typescript transform", () => {
         declare field: number;
       }
     `,
-      `"use strict";
+      `
       class Class {
         
         method(a) {}

@@ -1,4 +1,3 @@
-import {flowParseAssignableListItemTypes} from "../plugins/flow";
 import {
   tsParseAccessModifier,
   tsParseAssignableListItemTypes,
@@ -14,7 +13,7 @@ import {
 } from "../tokenizer/index";
 import {ContextualKeyword} from "../tokenizer/keywords";
 import {TokenType, TokenType as tt} from "../tokenizer/types";
-import {isFlowEnabled, isTypeScriptEnabled, state} from "./base";
+import {state} from "./base";
 import {parseIdentifier, parseMaybeAssign, parseObj} from "./expression";
 import {expect, unexpected} from "./util";
 
@@ -137,11 +136,7 @@ function parseAssignableListItem(allowModifiers: boolean, isBlockScope: boolean)
 }
 
 function parseAssignableListItemTypes(): void {
-  if (isFlowEnabled) {
-    flowParseAssignableListItemTypes();
-  } else if (isTypeScriptEnabled) {
-    tsParseAssignableListItemTypes();
-  }
+  tsParseAssignableListItemTypes();
 }
 
 // Parses assignment pattern around given atom if possible.

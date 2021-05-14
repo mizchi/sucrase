@@ -1,6 +1,6 @@
 /* eslint max-len: 0 */
 
-import {input, isFlowEnabled, state} from "../traverser/base";
+import {input, state} from "../traverser/base";
 import {unexpected} from "../traverser/util";
 import {charCodes} from "../util/charcodes";
 import {IS_IDENTIFIER_CHAR, IS_IDENTIFIER_START} from "../util/identifier";
@@ -431,7 +431,7 @@ function readToken_pipe_amp(code: number): void {
     if (nextChar === charCodes.greaterThan) {
       finishOp(tt.pipeline, 2);
       return;
-    } else if (nextChar === charCodes.rightCurlyBrace && isFlowEnabled) {
+    } else if (nextChar === charCodes.rightCurlyBrace) {
       // '|}'
       finishOp(tt.braceBarR, 2);
       return;
@@ -589,12 +589,8 @@ export function getTokenFromCode(code: number): void {
       return;
 
     case charCodes.leftCurlyBrace:
-      if (isFlowEnabled && input.charCodeAt(state.pos + 1) === charCodes.verticalBar) {
-        finishOp(tt.braceBarL, 2);
-      } else {
-        ++state.pos;
-        finishToken(tt.braceL);
-      }
+      ++state.pos;
+      finishToken(tt.braceL);
       return;
 
     case charCodes.rightCurlyBrace:

@@ -13,16 +13,8 @@ export class File {
   }
 }
 
-export function parse(
-  input: string,
-  isJSXEnabled: boolean,
-  isTypeScriptEnabled: boolean,
-  isFlowEnabled: boolean,
-): File {
-  if (isFlowEnabled && isTypeScriptEnabled) {
-    throw new Error("Cannot combine flow and typescript plugins.");
-  }
-  initParser(input, isJSXEnabled, isTypeScriptEnabled, isFlowEnabled);
+export function parse(input: string, isJSXEnabled: boolean): File {
+  initParser(input, isJSXEnabled);
   const result = parseFile();
   if (state.error) {
     throw augmentError(state.error);

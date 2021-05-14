@@ -2,8 +2,6 @@ import State from "../tokenizer/state";
 import {charCodes} from "../util/charcodes";
 
 export let isJSXEnabled: boolean;
-export let isTypeScriptEnabled: boolean;
-export let isFlowEnabled: boolean;
 export let state: State;
 export let input: string;
 export let nextContextId: number;
@@ -45,16 +43,9 @@ export function locationForIndex(pos: number): Loc {
   return new Loc(line, column);
 }
 
-export function initParser(
-  inputCode: string,
-  isJSXEnabledArg: boolean,
-  isTypeScriptEnabledArg: boolean,
-  isFlowEnabledArg: boolean,
-): void {
+export function initParser(inputCode: string, isJSXEnabledArg: boolean): void {
   input = inputCode;
   state = new State();
   nextContextId = 1;
   isJSXEnabled = isJSXEnabledArg;
-  isTypeScriptEnabled = isTypeScriptEnabledArg;
-  isFlowEnabled = isFlowEnabledArg;
 }

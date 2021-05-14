@@ -4,7 +4,7 @@ import {parse} from "../src/parser";
 import {Scope} from "../src/parser/tokenizer/state";
 
 function assertScopes(code: string, expectedScopes: Array<Scope>): void {
-  assert.deepEqual(parse(code, false, false, false).scopes, expectedScopes);
+  assert.deepEqual(parse(code, false).scopes, expectedScopes);
 }
 
 describe("scopes", () => {

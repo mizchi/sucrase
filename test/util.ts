@@ -33,7 +33,7 @@ export function assertExpectations(
 export function assertResult(
   code: string,
   expectedResult: string,
-  options: Options = {transforms: ["jsx", "imports"]},
+  options: Options = {transforms: ["jsx"]},
 ): void {
   assertExpectations(code, {expectedResult}, options);
 }
@@ -41,7 +41,7 @@ export function assertResult(
 export function assertOutput(
   code: string,
   expectedOutput: unknown,
-  options: Options = {transforms: ["jsx", "imports"]},
+  options: Options = {transforms: ["jsx"]},
 ): void {
   assertExpectations(code, {expectedOutput}, options);
 }
@@ -80,7 +80,7 @@ class FakeModuleResolver {
     if (!code) {
       throw new Error(`Did not find file ${filename}`);
     }
-    const compiledCode = transform(code, {transforms: ["imports"]}).code;
+    const compiledCode = transform(code, {transforms: []}).code;
     vm.runInNewContext(compiledCode, {require: this.evaluateModule.bind(this), exports});
     return exports;
   }

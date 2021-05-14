@@ -2,22 +2,6 @@
 
 import {File} from "../index";
 import {
-  flowAfterParseClassSuper,
-  flowAfterParseVarHead,
-  flowParseExportDeclaration,
-  flowParseExportStar,
-  flowParseIdentifierStatement,
-  flowParseImportSpecifier,
-  flowParseTypeAnnotation,
-  flowParseTypeParameterDeclaration,
-  flowShouldDisallowExportDefaultSpecifier,
-  flowShouldParseExportDeclaration,
-  flowShouldParseExportStar,
-  flowStartParseFunctionParams,
-  flowStartParseImportSpecifiers,
-  flowTryParseStatement,
-} from "../plugins/flow";
-import {
   tsAfterParseClassSuper,
   tsAfterParseVarHead,
   tsIsDeclarationStart,
@@ -51,7 +35,7 @@ import {ContextualKeyword} from "../tokenizer/keywords";
 import {Scope} from "../tokenizer/state";
 import {TokenType, TokenType as tt} from "../tokenizer/types";
 import {charCodes} from "../util/charcodes";
-import {getNextContextId, input, isFlowEnabled, isTypeScriptEnabled, state} from "./base";
+import {getNextContextId, input, state} from "./base";
 import {
   parseCallExpressionArguments,
   parseExprAtom,
@@ -98,11 +82,6 @@ export function parseTopLevel(): File {
 // does not help.
 
 export function parseStatement(declaration: boolean): void {
-  if (isFlowEnabled) {
-    if (flowTryParseStatement()) {
-      return;
-    }
-  }
   if (match(tt.at)) {
     parseDecorators();
   }
@@ -110,10 +89,8 @@ export function parseStatement(declaration: boolean): void {
 }
 
 function parseStatementContent(declaration: boolean): void {
-  if (isTypeScriptEnabled) {
-    if (tsTryParseStatementContent()) {
-      return;
-    }
+  if (tsTryParseStatementContent()) {
+    return;
   }
 
   const starttype = state.type;
@@ -260,11 +237,7 @@ function parseDecorator(): void {
 }
 
 function parseMaybeDecoratorArguments(): void {
-  if (isTypeScriptEnabled) {
-    tsParseMaybeDecoratorArguments();
-  } else {
-    baseParseMaybeDecoratorArguments();
-  }
+  tsParseMaybeDecoratorArguments();
 }
 
 export function baseParseMaybeDecoratorArguments(): void {
@@ -414,9 +387,7 @@ function parseThrowStatement(): void {
 function parseCatchClauseParam(): void {
   parseBindingAtom(true /* isBlockScope */);
 
-  if (isTypeScriptEnabled) {
-    tsTryParseTypeAnnotation();
-  }
+  tsTryParseTypeAnnotation();
 }
 
 function parseTryStatement(): void {
@@ -473,13 +444,7 @@ function parseLabeledStatement(): void {
  * to handle statements like "declare".
  */
 function parseIdentifierStatement(contextualKeyword: ContextualKeyword): void {
-  if (isTypeScriptEnabled) {
-    tsParseIdentifierStatement(contextualKeyword);
-  } else if (isFlowEnabled) {
-    flowParseIdentifierStatement(contextualKeyword);
-  } else {
-    semicolon();
-  }
+  tsParseIdentifierStatement(contextualKeyword);
 }
 
 // Parse a semicolon-enclosed block of statements.
@@ -555,11 +520,7 @@ function parseVar(isFor: boolean, kind: TokenType): void {
 
 function parseVarHead(isBlockScope: boolean): void {
   parseBindingAtom(isBlockScope);
-  if (isTypeScriptEnabled) {
-    tsAfterParseVarHead();
-  } else if (isFlowEnabled) {
-    flowAfterParseVarHead();
-  }
+  tsAfterParseVarHead();
 }
 
 // Parse a function declaration or literal (depending on the
@@ -609,12 +570,7 @@ export function parseFunctionParams(
   allowModifiers: boolean = false,
   funcContextId: number = 0,
 ): void {
-  if (isTypeScriptEnabled) {
-    tsStartParseFunctionParams();
-  } else if (isFlowEnabled) {
-    flowStartParseFunctionParams();
-  }
-
+  tsStartParseFunctionParams();
   expect(tt.parenL);
   if (funcContextId) {
     state.tokens[state.tokens.length - 1].contextId = funcContextId;
@@ -692,11 +648,9 @@ function parseClassBody(classContextId: number): void {
 }
 
 function parseClassMember(memberStart: number, classContextId: number): void {
-  if (isTypeScriptEnabled) {
-    tsParseModifier([ContextualKeyword._declare]);
-    tsParseAccessModifier();
-    tsParseModifier([ContextualKeyword._declare]);
-  }
+  tsParseModifier([ContextualKeyword._declare]);
+  tsParseAccessModifier();
+  tsParseModifier([ContextualKeyword._declare]);
   let isStatic = false;
   if (match(tt.name) && state.contextualKeyword === ContextualKeyword._static) {
     parseIdentifier(); // eats 'static'
@@ -728,10 +682,8 @@ function parseClassMemberWithIsStatic(
   isStatic: boolean,
   classContextId: number,
 ): void {
-  if (isTypeScriptEnabled) {
-    if (tsTryParseClassMemberWithIsStatic(isStatic, classContextId)) {
-      return;
-    }
+  if (tsTryParseClassMemberWithIsStatic(isStatic, classContextId)) {
+    return;
   }
   if (eat(tt.star)) {
     // a generator
@@ -791,13 +743,7 @@ function parseClassMemberWithIsStatic(
 }
 
 function parseClassMethod(functionStart: number, isConstructor: boolean): void {
-  if (isTypeScriptEnabled) {
-    tsTryParseTypeParameters();
-  } else if (isFlowEnabled) {
-    if (match(tt.lessThan)) {
-      flowParseTypeParameterDeclaration();
-    }
-  }
+  tsTryParseTypeParameters();
   parseMethod(functionStart, isConstructor);
 }
 
@@ -807,22 +753,14 @@ export function parseClassPropertyName(classContextId: number): void {
 }
 
 export function parsePostMemberNameModifiers(): void {
-  if (isTypeScriptEnabled) {
-    const oldIsType = pushTypeContext(0);
-    eat(tt.question);
-    popTypeContext(oldIsType);
-  }
+  const oldIsType = pushTypeContext(0);
+  eat(tt.question);
+  popTypeContext(oldIsType);
 }
 
 export function parseClassProperty(): void {
-  if (isTypeScriptEnabled) {
-    eat(tt.bang);
-    tsTryParseTypeAnnotation();
-  } else if (isFlowEnabled) {
-    if (match(tt.colon)) {
-      flowParseTypeAnnotation();
-    }
-  }
+  eat(tt.bang);
+  tsTryParseTypeAnnotation();
 
   if (match(tt.eq)) {
     const equalsTokenIndex = state.tokens.length;
@@ -834,11 +772,7 @@ export function parseClassProperty(): void {
 }
 
 function parseClassId(isStatement: boolean, optionalId: boolean = false): void {
-  if (
-    isTypeScriptEnabled &&
-    (!isStatement || optionalId) &&
-    isContextual(ContextualKeyword._implements)
-  ) {
+  if ((!isStatement || optionalId) && isContextual(ContextualKeyword._implements)) {
     return;
   }
 
@@ -846,13 +780,7 @@ function parseClassId(isStatement: boolean, optionalId: boolean = false): void {
     parseBindingIdentifier(true);
   }
 
-  if (isTypeScriptEnabled) {
-    tsTryParseTypeParameters();
-  } else if (isFlowEnabled) {
-    if (match(tt.lessThan)) {
-      flowParseTypeParameterDeclaration();
-    }
-  }
+  tsTryParseTypeParameters();
 }
 
 // Returns true if there was a superclass.
@@ -864,21 +792,15 @@ function parseClassSuper(): void {
   } else {
     hasSuper = false;
   }
-  if (isTypeScriptEnabled) {
-    tsAfterParseClassSuper(hasSuper);
-  } else if (isFlowEnabled) {
-    flowAfterParseClassSuper(hasSuper);
-  }
+  tsAfterParseClassSuper(hasSuper);
 }
 
 // Parses module export declaration.
 
 export function parseExport(): void {
   const exportIndex = state.tokens.length - 1;
-  if (isTypeScriptEnabled) {
-    if (tsTryParseExport()) {
-      return;
-    }
+  if (tsTryParseExport()) {
+    return;
   }
   // export * from '...'
   if (shouldParseExportStar()) {
@@ -909,11 +831,10 @@ export function parseExport(): void {
 }
 
 function parseExportDefaultExpression(): void {
-  if (isTypeScriptEnabled) {
-    if (tsTryParseExportDefaultExpression()) {
-      return;
-    }
+  if (tsTryParseExportDefaultExpression()) {
+    return;
   }
+
   const functionStart = state.start;
   if (eat(tt._function)) {
     parseFunction(functionStart, true, true);
@@ -934,19 +855,11 @@ function parseExportDefaultExpression(): void {
 }
 
 function parseExportDeclaration(): void {
-  if (isTypeScriptEnabled) {
-    tsParseExportDeclaration();
-  } else if (isFlowEnabled) {
-    flowParseExportDeclaration();
-  } else {
-    parseStatement(true);
-  }
+  tsParseExportDeclaration();
 }
 
 function isExportDefaultSpecifier(): boolean {
-  if (isTypeScriptEnabled && tsIsDeclarationStart()) {
-    return false;
-  } else if (isFlowEnabled && flowShouldDisallowExportDefaultSpecifier()) {
+  if (tsIsDeclarationStart()) {
     return false;
   }
   if (match(tt.name)) {
@@ -986,19 +899,11 @@ export function parseExportFrom(): void {
 }
 
 function shouldParseExportStar(): boolean {
-  if (isFlowEnabled) {
-    return flowShouldParseExportStar();
-  } else {
-    return match(tt.star);
-  }
+  return match(tt.star);
 }
 
 function parseExportStar(): void {
-  if (isFlowEnabled) {
-    flowParseExportStar();
-  } else {
-    baseParseExportStar();
-  }
+  baseParseExportStar();
 }
 
 export function baseParseExportStar(): void {
@@ -1021,8 +926,7 @@ function parseExportNamespace(): void {
 
 function shouldParseExportDeclaration(): boolean {
   return (
-    (isTypeScriptEnabled && tsIsDeclarationStart()) ||
-    (isFlowEnabled && flowShouldParseExportDeclaration()) ||
+    tsIsDeclarationStart() ||
     state.type === tt._var ||
     state.type === tt._const ||
     state.type === tt._let ||
@@ -1061,13 +965,11 @@ export function parseExportSpecifiers(): void {
 // Parses import declaration.
 
 export function parseImport(): void {
-  if (isTypeScriptEnabled && match(tt.name) && lookaheadType() === tt.eq) {
+  if (match(tt.name) && lookaheadType() === tt.eq) {
     tsParseImportEqualsDeclaration();
     return;
   }
-  if (isTypeScriptEnabled) {
-    eatContextual(ContextualKeyword._type);
-  }
+  eatContextual(ContextualKeyword._type);
 
   // import '...'
   if (match(tt.string)) {
@@ -1091,10 +993,6 @@ function parseImportSpecifierLocal(): void {
 
 // Parses a comma-separated list of module imports.
 function parseImportSpecifiers(): void {
-  if (isFlowEnabled) {
-    flowStartParseImportSpecifiers();
-  }
-
   let first = true;
   if (shouldParseDefaultImport()) {
     // import defaultObj, { x, y as z } from '...'
@@ -1135,10 +1033,6 @@ function parseImportSpecifiers(): void {
 }
 
 function parseImportSpecifier(): void {
-  if (isFlowEnabled) {
-    flowParseImportSpecifier();
-    return;
-  }
   parseImportedIdentifier();
   if (isContextual(ContextualKeyword._as)) {
     state.tokens[state.tokens.length - 1].identifierRole = IdentifierRole.ImportAccess;
