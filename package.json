@@ -7,9 +7,6 @@
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
-  "bin": {
-    "sucrase2": "./dist/cli.js"
-  },
   "scripts": {
     "build": "rollup -c",
     "clean": "rm -rf ./build ./dist ./dist-self-build ./dist-types ./example-runner/example-repos ./test262/test262-checkout",
