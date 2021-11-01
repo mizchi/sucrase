@@ -9,3 +9,4 @@ test262/test262-checkout
 coverage.lcov
 benchmark/sample/jest
 .perf-comparison
+yarn-error.log
